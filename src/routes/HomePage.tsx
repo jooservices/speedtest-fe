@@ -1,7 +1,12 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Line } from 'react-chartjs-2'
+import { useQuery } from 'react-query'
 
-import { Flex, Select } from 'antd'
+import { get } from 'lodash'
+
+import { ClockCircleOutlined, DownloadOutlined, UploadOutlined } from '@ant-design/icons'
+import { Flex, Select, Space, Typography } from 'antd'
+import { Col, Row } from 'antd'
 import {
   CategoryScale,
   ChartData,
@@ -15,6 +20,10 @@ import {
   Tooltip,
 } from 'chart.js'
 import annotationPlugin from 'chartjs-plugin-annotation'
+import MetricCard from 'components/MetricCard'
+import { getLatestDownload } from 'services/metricServices'
+
+const { Title: AntTitle, Text } = Typography
 
 ChartJS.register(
   CategoryScale,
@@ -28,6 +37,8 @@ ChartJS.register(
 )
 
 export default function HomePage() {
+  const [downloadSpeed, setDownloadSpeed] = React.useState<number>(0)
+
   const labels = [
     '26/11 22:06',
     '27/11 0:06',
@@ -105,22 +116,67 @@ export default function HomePage() {
     },
   }
 
+  const { data: latestDownloadData, refetch: refetchLatestDownload } = useQuery(
+    'getLatestDownload',
+    getLatestDownload
+  )
+
+  useEffect(() => {
+    console.log('Latest download data:', latestDownloadData)
+
+    if (latestDownloadData) {
+      const downloadSpeed = get(latestDownloadData, 'data.download_speed', 0)
+      setDownloadSpeed(downloadSpeed)
+    }
+  }, [latestDownloadData])
+
   return (
-    <div style={{ height: '400px', background: '#111', padding: '20px', borderRadius: '10px' }}>
-      <Flex style={{ justifyContent: 'space-between' }}>
-        <h2 style={{ color: 'white' }}>Download (Mbps)</h2>
-        <Select
-          style={{ width: 120 }}
-          defaultValue='last24hours'
-          options={[
-            {
-              value: 'last24hours',
-              label: 'Last 24h',
-            },
-          ]}
-        />
-      </Flex>
-      <Line style={{ paddingBottom: '60px' }} data={data} options={options} />
-    </div>
+    <>
+      <Row style={{ marginLeft: '8px' }}>
+        <Space direction='vertical'>
+          <AntTitle style={{ margin: 0 }}>Homepage</AntTitle>
+          <Text type='secondary'>Next speed test at: 27 Nov 2022, 22:06</Text>
+        </Space>
+      </Row>
+
+      <Row style={{ margin: '12px 0px' }}>
+        <Col span={8} xs={24} sm={12} md={8}>
+          <MetricCard
+            downloadSpeed={downloadSpeed}
+            title='Latest download'
+            icon={<DownloadOutlined />}
+          />
+        </Col>
+        <Col span={8} xs={24} sm={12} md={8}>
+          <MetricCard
+            downloadSpeed={downloadSpeed}
+            title='Latest upload'
+            icon={<UploadOutlined />}
+          />
+        </Col>
+        <Col span={8} xs={24} sm={12} md={8}>
+          <MetricCard downloadSpeed={downloadSpeed} title='Latest ping' icon={<ClockCircleOutlined />} />
+        </Col>
+      </Row>
+
+      <div
+        className='mt-5'
+        style={{ height: '400px', background: '#111', padding: '20px', borderRadius: '10px' }}>
+        <Flex style={{ justifyContent: 'space-between' }}>
+          <h2 style={{ color: 'white' }}>Download (Mbps)</h2>
+          <Select
+            style={{ width: 120 }}
+            defaultValue='last24hours'
+            options={[
+              {
+                value: 'last24hours',
+                label: 'Last 24h',
+              },
+            ]}
+          />
+        </Flex>
+        <Line style={{ paddingBottom: '60px' }} data={data} options={options} />
+      </div>
+    </>
   )
 }

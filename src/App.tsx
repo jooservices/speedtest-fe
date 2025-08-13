@@ -9,7 +9,7 @@ import {
   NotificationOutlined,
   UserOutlined,
 } from '@ant-design/icons'
-import { Button, Layout, Menu, MenuProps, theme } from 'antd'
+import { Button, Layout, Menu, MenuProps, Space, theme } from 'antd'
 
 const { Header, Sider, Content } = Layout
 
@@ -42,7 +42,8 @@ function App() {
   return (
     <Layout style={{ minHeight: '98vh' }}>
       <Header style={{ display: 'flex', alignItems: 'center' }}>
-        <div style={{ color: 'white' }}>LOGO</div>
+        <Space>
+          <div style={{ color: 'white' }}>JOO-SPEED</div>
         <Button
           type='text'
           icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
@@ -55,6 +56,13 @@ function App() {
             height: 32,
           }}
         />
+        </Space>
+
+        <Space style={{ marginLeft: 'auto' }}>
+          <Button type='primary'>Execute</Button>
+
+          <Button>Login</Button>
+        </Space>
       </Header>
       <Layout>
         <Sider
