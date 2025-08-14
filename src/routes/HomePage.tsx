@@ -5,7 +5,7 @@ import { useQuery } from 'react-query'
 import { get } from 'lodash'
 
 import { ClockCircleOutlined, DownloadOutlined, UploadOutlined } from '@ant-design/icons'
-import { Flex, Select, Space, Typography } from 'antd'
+import { Button, Flex, Select, Space, Typography } from 'antd'
 import { Col, Row } from 'antd'
 import {
   CategoryScale,
@@ -39,6 +39,7 @@ ChartJS.register(
 
 export default function HomePage() {
   const [downloadSpeed, setDownloadSpeed] = React.useState<number>(0)
+  const [isCompare, setIsCompare] = React.useState<boolean>(false)
 
   const labels = [
     '26/11 22:06',
@@ -142,7 +143,7 @@ export default function HomePage() {
           minute: '2-digit',
         })
       ),
-      datasets: [
+      datasets:[
         {
           label: 'Download',
           data: chartData.data.map((item: any) => formatSpeed(item.download_speed, false)),
@@ -158,6 +159,81 @@ export default function HomePage() {
           data: chartData.data.map((item: any) => formatSpeed(item.upload_speed, false)),
           borderColor: '#00ff62ff',
           backgroundColor: '#00ff62ff',
+          tension: 0.3,
+          fill: false,
+          pointRadius: 4,
+          pointHoverRadius: 6,
+        },
+      ],
+    }
+  : data // fallback to static data
+
+  const chartDownloadJsData: ChartData<'line', number[], string> = chartData
+  ? {
+      labels: chartData.data.map((item: any) =>
+        new Date(item.created_at).toLocaleString('en-GB', {
+          day: '2-digit',
+          month: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit',
+        })
+      ),
+      datasets: [
+        {
+          label: 'Download',
+          data: chartData.data.map((item: any) => formatSpeed(item.download_speed, false)),
+          borderColor: '#00bfff',
+          backgroundColor: '#00bfff',
+          tension: 0.3,
+          fill: false,
+          pointRadius: 4,
+          pointHoverRadius: 6,
+        }
+      ],
+    }
+  : data // fallback to static data
+
+  const chartUploadJsData: ChartData<'line', number[], string> = chartData
+  ? {
+      labels: chartData.data.map((item: any) =>
+        new Date(item.created_at).toLocaleString('en-GB', {
+          day: '2-digit',
+          month: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit',
+        })
+      ),
+      datasets: [
+        {
+          label: 'Upload',
+          data: chartData.data.map((item: any) => formatSpeed(item.upload_speed, false)),
+          borderColor: '#00ff62ff',
+          backgroundColor: '#00ff62ff',
+          tension: 0.3,
+          fill: false,
+          pointRadius: 4,
+          pointHoverRadius: 6,
+        },
+      ],
+    }
+  : data // fallback to static data
+
+  const chartPingJsData: ChartData<'line', number[], string> = chartData
+  ? {
+      labels: chartData.data.map((item: any) =>
+        new Date(item.created_at).toLocaleString('en-GB', {
+          day: '2-digit',
+          month: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit',
+        })
+      ),
+      datasets: [
+        {
+          label: 'Ping',
+          data: chartData.data.map((item: any) => formatSpeed(item.upload_speed, false)),
+          borderColor: '#f80000ff',
+          backgroundColor: '#f80000ff',
           tension: 0.3,
           fill: false,
           pointRadius: 4,
@@ -203,24 +279,61 @@ export default function HomePage() {
           <MetricCard downloadSpeed={downloadSpeed} title='Latest ping' icon={<ClockCircleOutlined />} />
         </Col>
       </Row>
+      {!isCompare ? (
+        <>
+          <div
+            className='mt-5'
+            style={{ height: '400px', background: '#111', padding: '20px', borderRadius: '10px' }}>
+            <Flex style={{ justifyContent: 'space-between' }}>
+              <h2 style={{ color: 'white' }}>Download (Mbps)</h2>
+              <Button
+                onClick={() => setIsCompare(!isCompare)}
+                style={{
+                  fontSize: '16px',
+                  backgroundColor: 'white',
+                  marginLeft: 48,
+                  height: 32,
+                }}
+              >Compare</Button>
+            </Flex>
+            <Line style={{ paddingBottom: '60px' }} data={chartDownloadJsData} options={options} />
+          </div>
+          <div
+            className='pt-5 mt-5'
+            style={{ height: '400px', background: '#111', padding: '20px', borderRadius: '10px', marginTop: '20px' }}>
+            <Flex style={{ justifyContent: 'space-between' }}>
+              <h2 style={{ color: 'white' }}>Upload (Mbps)</h2>
+            </Flex>
+            <Line style={{ paddingBottom: '60px' }} data={chartUploadJsData} options={options} />
+          </div>
+        </>
+      ) : (
+        <div
+          className='mt-5'
+          style={{ height: '400px', background: '#111', padding: '20px', borderRadius: '10px' }}>
+          <Flex style={{ justifyContent: 'space-between' }}>
+            <h2 style={{ color: 'white' }}>Download & Upload (Mbps)</h2>
+            <Button
+              onClick={() => setIsCompare(!isCompare)}
+              style={{
+                fontSize: '16px',
+                backgroundColor: 'white',
+                marginLeft: 48,
+                height: 32,
+              }}
+            >Compare</Button>
+          </Flex>
+          <Line style={{ paddingBottom: '60px' }} data={chartJsData} options={options} />
+        </div>
+      )}
 
       <div
         className='mt-5'
-        style={{ height: '400px', background: '#111', padding: '20px', borderRadius: '10px' }}>
+        style={{ height: '400px', background: '#111', padding: '20px', borderRadius: '10px', marginTop: '20px' }}>
         <Flex style={{ justifyContent: 'space-between' }}>
-          <h2 style={{ color: 'white' }}>Download & Upload (Mbps)</h2>
-          <Select
-            style={{ width: 120 }}
-            defaultValue='last24hours'
-            options={[
-              {
-                value: 'last24hours',
-                label: 'Last 24h',
-              },
-            ]}
-          />
+          <h2 style={{ color: 'white' }}>Ping (Mbps)</h2>
         </Flex>
-        <Line style={{ paddingBottom: '60px' }} data={chartJsData} options={options} />
+        <Line style={{ paddingBottom: '60px' }} data={chartPingJsData} options={options} />
       </div>
     </>
   )
