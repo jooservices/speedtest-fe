@@ -27,4 +27,12 @@ const ping = (): Promise<any> => {
   return httpRequest.get(obj)
 }
 
-export { getLatestDownload, getLatestUpload, ping }
+const getCharts = (): Promise<any> => {
+  const obj = {
+    url: `${ENDPOINT}/speedtests`,
+  } as any
+
+  return httpRequest.get(obj)
+}
+
+export { getLatestDownload, getLatestUpload, ping, getCharts }
