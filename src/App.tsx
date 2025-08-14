@@ -9,7 +9,7 @@ import {
   NotificationOutlined,
   UserOutlined,
 } from '@ant-design/icons'
-import { Button, Layout, Menu, MenuProps, Space, theme } from 'antd'
+import { Avatar, Button, Layout, Menu, MenuProps, Space, theme } from 'antd'
 
 const { Header, Sider, Content } = Layout
 
@@ -44,24 +44,32 @@ function App() {
       <Header style={{ display: 'flex', alignItems: 'center' }}>
         <Space>
           <div style={{ color: 'white' }}>JOO-SPEED</div>
-        <Button
-          type='text'
-          icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
-          onClick={() => setCollapsed(!collapsed)}
-          style={{
-            fontSize: '16px',
-            backgroundColor: 'white',
-            marginLeft: 48,
-            width: 32,
-            height: 32,
-          }}
-        />
+          <Button
+            type='text'
+            icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+            onClick={() => setCollapsed(!collapsed)}
+            style={{
+              fontSize: '16px',
+              backgroundColor: 'white',
+              marginLeft: 48,
+              width: 32,
+              height: 32,
+            }}
+          />
         </Space>
 
         <Space style={{ marginLeft: 'auto' }}>
           <Button type='primary'>Execute</Button>
 
-          <Button>Login</Button>
+          <Avatar
+            style={{
+              backgroundColor: '#52c41a',
+              cursor: 'pointer'
+            }}
+            size={32}
+            >
+              SG
+          </Avatar>
         </Space>
       </Header>
       <Layout>
