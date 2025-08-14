@@ -21,7 +21,8 @@ import {
 } from 'chart.js'
 import annotationPlugin from 'chartjs-plugin-annotation'
 import MetricCard from 'components/MetricCard'
-import { getLatestDownload } from 'services/metricServices'
+import { getCharts, getLatestDownload } from 'services/metricServices'
+import { formatSpeed } from 'utils/helper'
 
 const { Title: AntTitle, Text } = Typography
 
@@ -121,8 +122,52 @@ export default function HomePage() {
     getLatestDownload
   )
 
+  const { data: chartData } = useQuery(
+    'getCharts',
+    getCharts,
+    {
+      cacheTime: 1000 * 60 * 30, // cache for 30 mins
+      refetchInterval: 1000 * 60 * 30, // refreshes every 30 mins
+      refetchOnWindowFocus: false,
+    }
+  )
+
+  const chartJsData: ChartData<'line', number[], string> = chartData
+  ? {
+      labels: chartData.data.map((item: any) =>
+        new Date(item.created_at).toLocaleString('en-GB', {
+          day: '2-digit',
+          month: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit',
+        })
+      ),
+      datasets: [
+        {
+          label: 'Download',
+          data: chartData.data.map((item: any) => formatSpeed(item.download_speed, false)),
+          borderColor: '#00bfff',
+          backgroundColor: '#00bfff',
+          tension: 0.3,
+          fill: false,
+          pointRadius: 4,
+          pointHoverRadius: 6,
+        },
+        {
+          label: 'Upload',
+          data: chartData.data.map((item: any) => formatSpeed(item.upload_speed, false)),
+          borderColor: '#00ff62ff',
+          backgroundColor: '#00ff62ff',
+          tension: 0.3,
+          fill: false,
+          pointRadius: 4,
+          pointHoverRadius: 6,
+        },
+      ],
+    }
+  : data // fallback to static data
+
   useEffect(() => {
-    console.log('Latest download data:', latestDownloadData)
 
     if (latestDownloadData) {
       const downloadSpeed = get(latestDownloadData, 'data.download_speed', 0)
@@ -163,7 +208,7 @@ export default function HomePage() {
         className='mt-5'
         style={{ height: '400px', background: '#111', padding: '20px', borderRadius: '10px' }}>
         <Flex style={{ justifyContent: 'space-between' }}>
-          <h2 style={{ color: 'white' }}>Download (Mbps)</h2>
+          <h2 style={{ color: 'white' }}>Download & Upload (Mbps)</h2>
           <Select
             style={{ width: 120 }}
             defaultValue='last24hours'
@@ -175,7 +220,7 @@ export default function HomePage() {
             ]}
           />
         </Flex>
-        <Line style={{ paddingBottom: '60px' }} data={data} options={options} />
+        <Line style={{ paddingBottom: '60px' }} data={chartJsData} options={options} />
       </div>
     </>
   )
