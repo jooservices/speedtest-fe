@@ -23,6 +23,7 @@ import annotationPlugin from 'chartjs-plugin-annotation'
 import MetricCard from 'components/MetricCard'
 import { getCharts, getLatestDownload } from 'services/metricServices'
 import { formatSpeed } from 'utils/helper'
+import Chart from 'components/chart'
 
 const { Title: AntTitle, Text } = Typography
 
@@ -281,60 +282,38 @@ export default function HomePage() {
       </Row>
       {!isCompare ? (
         <>
-          <div
-            className='mt-5'
-            style={{ height: '400px', background: '#111', padding: '20px', borderRadius: '10px' }}>
-            <Flex style={{ justifyContent: 'space-between' }}>
-              <h2 style={{ color: 'white' }}>Download (Mbps)</h2>
-              <Button
-                onClick={() => setIsCompare(!isCompare)}
-                style={{
-                  fontSize: '16px',
-                  backgroundColor: 'white',
-                  marginLeft: 48,
-                  height: 32,
-                }}
-              >Compare</Button>
-            </Flex>
-            <Line style={{ paddingBottom: '60px' }} data={chartDownloadJsData} options={options} />
-          </div>
-          <div
-            className='pt-5 mt-5'
-            style={{ height: '400px', background: '#111', padding: '20px', borderRadius: '10px', marginTop: '20px' }}>
-            <Flex style={{ justifyContent: 'space-between' }}>
-              <h2 style={{ color: 'white' }}>Upload (Mbps)</h2>
-            </Flex>
-            <Line style={{ paddingBottom: '60px' }} data={chartUploadJsData} options={options} />
-          </div>
+          <Chart
+            chartJsData={chartDownloadJsData}
+            options={options}
+            isCompare={isCompare}
+            setIsCompare={setIsCompare}
+            showButtonCompare={true}
+          />
+          <Chart
+            chartJsData={chartUploadJsData}
+            options={options}
+            isCompare={isCompare}
+            setIsCompare={setIsCompare}
+            showButtonCompare={false}
+          />
         </>
       ) : (
-        <div
-          className='mt-5'
-          style={{ height: '400px', background: '#111', padding: '20px', borderRadius: '10px' }}>
-          <Flex style={{ justifyContent: 'space-between' }}>
-            <h2 style={{ color: 'white' }}>Download & Upload (Mbps)</h2>
-            <Button
-              onClick={() => setIsCompare(!isCompare)}
-              style={{
-                fontSize: '16px',
-                backgroundColor: 'white',
-                marginLeft: 48,
-                height: 32,
-              }}
-            >Compare</Button>
-          </Flex>
-          <Line style={{ paddingBottom: '60px' }} data={chartJsData} options={options} />
-        </div>
+        <Chart
+          chartJsData={chartJsData}
+          options={options}
+          isCompare={isCompare}
+          setIsCompare={setIsCompare}
+          showButtonCompare={true}
+        />
       )}
 
-      <div
-        className='mt-5'
-        style={{ height: '400px', background: '#111', padding: '20px', borderRadius: '10px', marginTop: '20px' }}>
-        <Flex style={{ justifyContent: 'space-between' }}>
-          <h2 style={{ color: 'white' }}>Ping (Mbps)</h2>
-        </Flex>
-        <Line style={{ paddingBottom: '60px' }} data={chartPingJsData} options={options} />
-      </div>
+      <Chart
+        chartJsData={chartPingJsData}
+        options={options}
+        isCompare={isCompare}
+        setIsCompare={setIsCompare}
+        showButtonCompare={false}
+      />
     </>
   )
 }
