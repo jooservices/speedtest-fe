@@ -9,30 +9,11 @@ import {
   NotificationOutlined,
   UserOutlined,
 } from '@ant-design/icons'
-import { Avatar, Button, Layout, Menu, MenuProps, Space, theme } from 'antd'
+import { Button, Layout, MenuProps, Space, theme } from 'antd'
 import UserInfo from 'components/UserInfo'
+import SideBarContainer from 'containers/SideBarContainer'
 
-const { Header, Sider, Content } = Layout
-
-const items2: MenuProps['items'] = [UserOutlined, LaptopOutlined, NotificationOutlined].map(
-  (icon, index) => {
-    const key = String(index + 1)
-
-    return {
-      key: `sub${key}`,
-      icon: React.createElement(icon),
-      type: 'group',
-      label: `subnav ${key}`,
-      children: Array.from({ length: 4 }).map((_, j) => {
-        const subKey = index * 4 + j + 1
-        return {
-          key: subKey,
-          label: `option${subKey}`,
-        }
-      }),
-    }
-  }
-)
+const { Header, Content } = Layout
 
 function App() {
   const [collapsed, setCollapsed] = useState(false)
@@ -67,20 +48,7 @@ function App() {
         </Space>
       </Header>
       <Layout>
-        <Sider
-          width={200}
-          style={{ background: colorBgContainer }}
-          trigger={null}
-          collapsible
-          collapsed={collapsed}>
-          <Menu
-            mode='inline'
-            defaultSelectedKeys={['1']}
-            defaultOpenKeys={['sub1']}
-            style={{ height: '100%', borderInlineEnd: 0, paddingTop: 16 }}
-            items={items2}
-          />
-        </Sider>
+        <SideBarContainer isCollapsed={collapsed} />
         <Layout style={{ padding: 24 }}>
           <Content
             style={{
