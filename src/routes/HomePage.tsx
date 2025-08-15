@@ -5,7 +5,7 @@ import { useQuery } from 'react-query'
 import { get } from 'lodash'
 
 import { ClockCircleOutlined, DownloadOutlined, UploadOutlined } from '@ant-design/icons'
-import { Space, Typography } from 'antd'
+import { DatePicker, DatePickerProps, Space, Typography } from 'antd'
 import { Col, Row } from 'antd'
 import {
   CategoryScale,
@@ -50,6 +50,9 @@ export default function HomePage() {
     getSpeedtestLatest
   )
 
+  const onChange: DatePickerProps['onChange'] = (date, dateString) => {
+    console.log(date, dateString);
+  };
   const { data: chartData } = useQuery('getCharts', getCharts, {
     cacheTime: 1000 * 60 * 30, // cache for 30 mins
     refetchInterval: 1000 * 60 * 30, // refreshes every 30 mins
@@ -91,6 +94,12 @@ export default function HomePage() {
         <Space direction='vertical'>
           <AntTitle style={{ margin: 0 }}>Homepage</AntTitle>
           <Text type='secondary'>Next speed test at: 27 Nov 2022, 22:06</Text>
+        </Space>
+      </Row>
+
+      <Row style={{ marginLeft: '8px', marginTop: '8px' }}>
+        <Space direction='vertical'>
+          <DatePicker onChange={onChange} />
         </Space>
       </Row>
 
