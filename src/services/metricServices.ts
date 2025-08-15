@@ -11,6 +11,14 @@ const getLatestDownload = (): Promise<any> => {
   return httpRequest.get(obj)
 }
 
+const getSpeedtestLatest = (): Promise<any> => {
+  const obj = {
+    url: `${ENDPOINT}/speedtest/latest`,
+  }
+
+  return httpRequest.get(obj)
+}
+
 const getLatestUpload = (): Promise<any> => {
   const obj = {
     url: `${ENDPOINT}/latest-upload-speed`,
@@ -29,10 +37,10 @@ const ping = (): Promise<any> => {
 
 const getCharts = (): Promise<any> => {
   const obj = {
-    url: `${ENDPOINT}/speedtests`,
+    url: `${ENDPOINT}/speedtest`,
   } as any
 
   return httpRequest.get(obj)
 }
 
-export { getLatestDownload, getLatestUpload, ping, getCharts }
+export { getLatestDownload, getLatestUpload, ping, getCharts, getSpeedtestLatest }

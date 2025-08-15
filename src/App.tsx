@@ -10,6 +10,7 @@ import {
   UserOutlined,
 } from '@ant-design/icons'
 import { Avatar, Button, Layout, Menu, MenuProps, Space, theme } from 'antd'
+import UserInfo from 'components/UserInfo'
 
 const { Header, Sider, Content } = Layout
 
@@ -60,16 +61,9 @@ function App() {
 
         <Space style={{ marginLeft: 'auto' }}>
           <Button type='primary'>Execute</Button>
-
-          <Avatar
-            style={{
-              backgroundColor: '#52c41a',
-              cursor: 'pointer'
-            }}
-            size={32}
-            >
-              SG
-          </Avatar>
+          
+          <UserInfo isAuthenticated />
+          <UserInfo isAuthenticated = {false} />
         </Space>
       </Header>
       <Layout>
