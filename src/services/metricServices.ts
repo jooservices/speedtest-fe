@@ -43,4 +43,13 @@ const getCharts = (): Promise<any> => {
   return httpRequest.get(obj)
 }
 
-export { getLatestDownload, getLatestUpload, ping, getCharts, getSpeedtestLatest }
+const executeSpeedtest = (): Promise<any> => {
+  const obj = {
+    url: `${ENDPOINT}/speedtest`,
+    method: 'POST',
+  }
+
+  return httpRequest.post(obj)
+}
+
+export { getLatestDownload, getLatestUpload, ping, getCharts, getSpeedtestLatest, executeSpeedtest }

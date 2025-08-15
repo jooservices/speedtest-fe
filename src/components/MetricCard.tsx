@@ -11,7 +11,7 @@ export default function MetricCard(props: {
   const { downloadSpeed, title, icon } = props
 
   return (
-    <Card>
+    <Card className='metric-card'>
       <span style={{ display: 'flex', alignItems: 'center' }}>
         {icon}
 
