@@ -5,7 +5,7 @@ import { useQuery } from 'react-query'
 import { get } from 'lodash'
 
 import { ClockCircleOutlined, DownloadOutlined, UploadOutlined } from '@ant-design/icons'
-import { Button, Flex, Select, Space, Typography } from 'antd'
+import { Space, Typography } from 'antd'
 import { Col, Row } from 'antd'
 import {
   CategoryScale,
@@ -20,10 +20,11 @@ import {
   Tooltip,
 } from 'chart.js'
 import annotationPlugin from 'chartjs-plugin-annotation'
+import Chart from 'components/Chart'
 import MetricCard from 'components/MetricCard'
-import { getCharts, getLatestDownload } from 'services/metricServices'
+import { getCharts, getLatestDownload, getSpeedtestLatest } from 'services/metricServices'
 import { formatSpeed } from 'utils/helper'
-import Chart from 'components/chart'
+import Tables from 'components/Tables'
 
 const { Title: AntTitle, Text } = Typography
 
@@ -40,217 +41,49 @@ ChartJS.register(
 
 export default function HomePage() {
   const [downloadSpeed, setDownloadSpeed] = React.useState<number>(0)
+  const [uploadSpeed, setUploadSpeed] = React.useState<number>(0)
+  const [ping, setPing] = React.useState<number>(0)
   const [isCompare, setIsCompare] = React.useState<boolean>(false)
 
-  const labels = [
-    '26/11 22:06',
-    '27/11 0:06',
-    '27/11 2:06',
-    '27/11 4:06',
-    '27/11 6:06',
-    '27/11 8:06',
-    '27/11 10:06',
-    '27/11 12:06',
-    '27/11 14:06',
-    '27/11 16:06',
-    '27/11 18:06',
-    '27/11 20:06',
-  ]
-
-  const downloadData = [82, 95, 95, 95, 95, 95, 82, 95, 95, 89, 82, 82]
-  const uploadData = [20, 25, 25, 25, 25, 25, 20, 25, 25, 23, 20, 20]
-
-  const averageValue = 90
-
-  const data: ChartData<'line', number[], string> = {
-    labels,
-    datasets: [
-      {
-        label: 'Download',
-        data: downloadData,
-        borderColor: '#00bfff',
-        backgroundColor: '#00bfff',
-        tension: 0.3,
-        fill: false,
-        pointRadius: 4,
-        pointHoverRadius: 6,
-      },
-      {
-        label: 'Average',
-        data: labels.map(() => averageValue), // constant horizontal line
-        borderColor: 'red',
-        borderWidth: 2,
-        borderDash: [6, 6],
-        fill: false,
-        pointRadius: 0, // no points
-        tension: 0, // straight line
-      },
-      {
-        label: 'Download',
-        data: uploadData,
-        borderColor: '#00ff62ff',
-        backgroundColor: '#00ff62ff',
-        tension: 0.3,
-        fill: false,
-        pointRadius: 4,
-        pointHoverRadius: 6,
-      },
-    ],
-  }
-
-  const options: ChartOptions<'line'> = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: {
-        position: 'bottom', // Legend at bottom
-        labels: { color: '#ffffff' },
-      },
-    },
-    scales: {
-      x: {
-        ticks: { color: '#ffffff' },
-        grid: { color: '#333333' },
-      },
-      y: {
-        ticks: { color: '#ffffff' },
-        grid: { color: '#333333' },
-      },
-    },
-  }
-
-  const { data: latestDownloadData, refetch: refetchLatestDownload } = useQuery(
-    'getLatestDownload',
-    getLatestDownload
+  const { data: latestData, refetch: refetchLatest } = useQuery(
+    'getSpeedtestLatest',
+    getSpeedtestLatest
   )
 
-  const { data: chartData } = useQuery(
-    'getCharts',
-    getCharts,
-    {
-      cacheTime: 1000 * 60 * 30, // cache for 30 mins
-      refetchInterval: 1000 * 60 * 30, // refreshes every 30 mins
-      refetchOnWindowFocus: false,
-    }
-  )
+  const { data: chartData } = useQuery('getCharts', getCharts, {
+    cacheTime: 1000 * 60 * 30, // cache for 30 mins
+    refetchInterval: 1000 * 60 * 30, // refreshes every 30 mins
+    refetchOnWindowFocus: false,
+    select({ data }) {
+      if (!data) {
+        return null
+      }
 
-  const chartJsData: ChartData<'line', number[], string> = chartData
-  ? {
-      labels: chartData.data.map((item: any) =>
-        new Date(item.created_at).toLocaleString('en-GB', {
-          day: '2-digit',
-          month: '2-digit',
-          hour: '2-digit',
-          minute: '2-digit',
-        })
-      ),
-      datasets:[
-        {
-          label: 'Download',
-          data: chartData.data.map((item: any) => formatSpeed(item.download_speed, false)),
-          borderColor: '#00bfff',
-          backgroundColor: '#00bfff',
-          tension: 0.3,
-          fill: false,
-          pointRadius: 4,
-          pointHoverRadius: 6,
-        },
-        {
-          label: 'Upload',
-          data: chartData.data.map((item: any) => formatSpeed(item.upload_speed, false)),
-          borderColor: '#00ff62ff',
-          backgroundColor: '#00ff62ff',
-          tension: 0.3,
-          fill: false,
-          pointRadius: 4,
-          pointHoverRadius: 6,
-        },
-      ],
-    }
-  : data // fallback to static data
-
-  const chartDownloadJsData: ChartData<'line', number[], string> = chartData
-  ? {
-      labels: chartData.data.map((item: any) =>
-        new Date(item.created_at).toLocaleString('en-GB', {
-          day: '2-digit',
-          month: '2-digit',
-          hour: '2-digit',
-          minute: '2-digit',
-        })
-      ),
-      datasets: [
-        {
-          label: 'Download',
-          data: chartData.data.map((item: any) => formatSpeed(item.download_speed, false)),
-          borderColor: '#00bfff',
-          backgroundColor: '#00bfff',
-          tension: 0.3,
-          fill: false,
-          pointRadius: 4,
-          pointHoverRadius: 6,
-        }
-      ],
-    }
-  : data // fallback to static data
-
-  const chartUploadJsData: ChartData<'line', number[], string> = chartData
-  ? {
-      labels: chartData.data.map((item: any) =>
-        new Date(item.created_at).toLocaleString('en-GB', {
-          day: '2-digit',
-          month: '2-digit',
-          hour: '2-digit',
-          minute: '2-digit',
-        })
-      ),
-      datasets: [
-        {
-          label: 'Upload',
-          data: chartData.data.map((item: any) => formatSpeed(item.upload_speed, false)),
-          borderColor: '#00ff62ff',
-          backgroundColor: '#00ff62ff',
-          tension: 0.3,
-          fill: false,
-          pointRadius: 4,
-          pointHoverRadius: 6,
-        },
-      ],
-    }
-  : data // fallback to static data
-
-  const chartPingJsData: ChartData<'line', number[], string> = chartData
-  ? {
-      labels: chartData.data.map((item: any) =>
-        new Date(item.created_at).toLocaleString('en-GB', {
-          day: '2-digit',
-          month: '2-digit',
-          hour: '2-digit',
-          minute: '2-digit',
-        })
-      ),
-      datasets: [
-        {
-          label: 'Ping',
-          data: chartData.data.map((item: any) => formatSpeed(item.upload_speed, false)),
-          borderColor: '#f80000ff',
-          backgroundColor: '#f80000ff',
-          tension: 0.3,
-          fill: false,
-          pointRadius: 4,
-          pointHoverRadius: 6,
-        },
-      ],
-    }
-  : data // fallback to static data
+      return {
+        labels: data.map((item: any) =>
+          new Date(item.created_at).toLocaleString('en-GB', {
+            day: '2-digit',
+            month: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+          })
+        ),
+        downloadData: data.map((item: any) => formatSpeed(item.download_speed, false)),
+        uploadData: data.map((item: any) => formatSpeed(item.upload_speed, false)),
+      }
+    },
+  })
 
   useEffect(() => {
-
-    if (latestDownloadData) {
-      const downloadSpeed = get(latestDownloadData, 'data.download_speed', 0)
+    if (latestData) {
+      const downloadSpeed = get(latestData, 'data.download_speed', 0)
+      const uploadSpeed = get(latestData, 'data.upload_speed', 0)
+      const ping = get(latestData, 'data.ping.latency', 0)
       setDownloadSpeed(downloadSpeed)
+      setUploadSpeed(uploadSpeed)
+      setPing(ping)
     }
-  }, [latestDownloadData])
+  }, [latestData])
 
   return (
     <>
@@ -270,50 +103,62 @@ export default function HomePage() {
           />
         </Col>
         <Col span={8} xs={24} sm={12} md={8}>
-          <MetricCard
-            downloadSpeed={downloadSpeed}
-            title='Latest upload'
-            icon={<UploadOutlined />}
-          />
+          <MetricCard downloadSpeed={uploadSpeed} title='Latest upload' icon={<UploadOutlined />} />
         </Col>
         <Col span={8} xs={24} sm={12} md={8}>
-          <MetricCard downloadSpeed={downloadSpeed} title='Latest ping' icon={<ClockCircleOutlined />} />
+          <MetricCard downloadSpeed={ping} title='Latest ping' icon={<ClockCircleOutlined />} />
         </Col>
       </Row>
+
       {!isCompare ? (
         <>
           <Chart
-            chartJsData={chartDownloadJsData}
-            options={options}
-            isCompare={isCompare}
-            setIsCompare={setIsCompare}
-            showButtonCompare={true}
+            labels={chartData?.labels}
+            actionButton={
+              <Space>
+                <button
+                  onClick={() => {
+                    setIsCompare(!isCompare)
+                  }}>
+                  Compare
+                </button>
+              </Space>
+            }
+            downloadChartData={chartData?.downloadData}
+            title={'Download'}
           />
           <Chart
-            chartJsData={chartUploadJsData}
-            options={options}
-            isCompare={isCompare}
-            setIsCompare={setIsCompare}
-            showButtonCompare={false}
+            labels={chartData?.labels}
+            uploadChartData={chartData?.uploadData}
+            title={'Upload'}
           />
         </>
       ) : (
         <Chart
-          chartJsData={chartJsData}
-          options={options}
-          isCompare={isCompare}
-          setIsCompare={setIsCompare}
-          showButtonCompare={true}
+          labels={chartData?.labels}
+          actionButton={
+            <Space>
+              <button
+                onClick={() => {
+                  setIsCompare(!isCompare)
+                }}>
+                Compare
+              </button>
+            </Space>
+          }
+          downloadChartData={chartData?.downloadData}
+          uploadChartData={chartData?.uploadData}
+          title={'Download & Upload'}
         />
       )}
 
       <Chart
-        chartJsData={chartPingJsData}
-        options={options}
-        isCompare={isCompare}
-        setIsCompare={setIsCompare}
-        showButtonCompare={false}
-      />
+        labels={chartData?.labels}
+        pingChartData={chartData?.downloadData}
+        title={'Ping'}
+      /> 
+
+      <Tables />
     </>
   )
 }
