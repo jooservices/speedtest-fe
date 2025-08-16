@@ -3,15 +3,15 @@ import React, { useState } from 'react'
 import './App.css'
 import PageRoutes from './routes'
 import {
-  LaptopOutlined,
   MenuFoldOutlined,
   MenuUnfoldOutlined,
-  NotificationOutlined,
-  UserOutlined,
 } from '@ant-design/icons'
-import { Button, Layout, MenuProps, Space, theme } from 'antd'
+import { Button, Layout, Space, theme } from 'antd'
 import UserInfo from 'components/UserInfo'
 import SideBarContainer from 'containers/SideBarContainer'
+import { useMutation } from 'react-query'
+import { toast } from 'react-toastify'
+import { executeSpeedtest } from 'services/metricServices'
 
 const { Header, Content } = Layout
 
@@ -20,6 +20,22 @@ function App() {
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken()
+
+  const {isLoading, mutate: execute} = useMutation(
+    executeSpeedtest,
+    {
+      onSuccess: () => {
+        toast.success('Speedtest executed successfully!')
+      },
+      onError: (error) => {
+        toast.error('Error executing speedtest: ' + error?.message)
+      },
+    }
+  )
+
+  const handleExecuteSpeedtest = () => {
+    execute()
+  }
 
   return (
     <Layout style={{ minHeight: '98vh' }}>
@@ -41,7 +57,7 @@ function App() {
         </Space>
 
         <Space style={{ marginLeft: 'auto' }}>
-          <Button type='primary'>Execute</Button>
+          <Button type='primary' loading={isLoading} onClick={handleExecuteSpeedtest}>Execute</Button>
           
           <UserInfo isAuthenticated />
           <UserInfo isAuthenticated = {false} />

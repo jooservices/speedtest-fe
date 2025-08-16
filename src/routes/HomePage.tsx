@@ -1,17 +1,14 @@
 import React, { useEffect } from 'react'
-import { Line } from 'react-chartjs-2'
 import { useQuery } from 'react-query'
 
 import { get } from 'lodash'
 
 import { ClockCircleOutlined, DownloadOutlined, UploadOutlined } from '@ant-design/icons'
-import { DatePicker, DatePickerProps, Space, Typography } from 'antd'
+import { DatePicker, DatePickerProps, Select, Space, Typography } from 'antd'
 import { Col, Row } from 'antd'
 import {
   CategoryScale,
-  ChartData,
   Chart as ChartJS,
-  ChartOptions,
   Legend,
   LineElement,
   LinearScale,
@@ -22,9 +19,9 @@ import {
 import annotationPlugin from 'chartjs-plugin-annotation'
 import Chart from 'components/Chart'
 import MetricCard from 'components/MetricCard'
+import Tables from 'components/Tables'
 import { getCharts, getLatestDownload, getSpeedtestLatest } from 'services/metricServices'
 import { formatSpeed } from 'utils/helper'
-import Tables from 'components/Tables'
 
 const { Title: AntTitle, Text } = Typography
 
@@ -39,20 +36,23 @@ ChartJS.register(
   annotationPlugin
 )
 
+type unitType = 'bps' | 'kbps' | 'mbps' | 'gbps'
+
 export default function HomePage() {
   const [downloadSpeed, setDownloadSpeed] = React.useState<number>(0)
   const [uploadSpeed, setUploadSpeed] = React.useState<number>(0)
   const [ping, setPing] = React.useState<number>(0)
   const [isCompare, setIsCompare] = React.useState<boolean>(false)
+  const [unit, setUnit] = React.useState<unitType>('mbps')
 
-  const { data: latestData, refetch: refetchLatest } = useQuery(
+  const { data: latestData } = useQuery(
     'getSpeedtestLatest',
     getSpeedtestLatest
   )
 
   const onChange: DatePickerProps['onChange'] = (date, dateString) => {
-    console.log(date, dateString);
-  };
+    console.log(date, dateString)
+  }
   const { data: chartData } = useQuery('getCharts', getCharts, {
     cacheTime: 1000 * 60 * 30, // cache for 30 mins
     refetchInterval: 1000 * 60 * 30, // refreshes every 30 mins
@@ -73,6 +73,7 @@ export default function HomePage() {
         ),
         downloadData: data.map((item: any) => formatSpeed(item.download_speed, false)),
         uploadData: data.map((item: any) => formatSpeed(item.upload_speed, false)),
+        pingData: data.map((item: any) => formatSpeed(item.ping.latency, false)),
       }
     },
   })
@@ -97,9 +98,18 @@ export default function HomePage() {
         </Space>
       </Row>
 
-      <Row style={{ marginLeft: '8px', marginTop: '8px' }}>
+      <Row style={{ marginLeft: '8px', marginTop: '8px', justifyContent: 'space-between' }}>
         <Space direction='vertical'>
           <DatePicker onChange={onChange} />
+        </Space>
+        <Space direction='horizontal'>
+          <Text type='secondary'>Unit</Text>
+          <Select defaultValue={unit} onChange={value => setUnit(value)} style={{ width: 120 }}>
+            <Select.Option value='bps'>bps</Select.Option>
+            <Select.Option value='kbps'>Kbps</Select.Option>
+            <Select.Option value='mbps'>Mbps</Select.Option>
+            <Select.Option value='gbps'>Gbps</Select.Option>
+          </Select>
         </Space>
       </Row>
 
@@ -129,7 +139,7 @@ export default function HomePage() {
                   onClick={() => {
                     setIsCompare(!isCompare)
                   }}>
-                  Compare
+                  {isCompare ? 'Combined' : 'Separated'}
                 </button>
               </Space>
             }
@@ -151,7 +161,7 @@ export default function HomePage() {
                 onClick={() => {
                   setIsCompare(!isCompare)
                 }}>
-                Compare
+                {isCompare ? 'Combined' : 'Separated'}
               </button>
             </Space>
           }
@@ -161,11 +171,7 @@ export default function HomePage() {
         />
       )}
 
-      <Chart
-        labels={chartData?.labels}
-        pingChartData={chartData?.downloadData}
-        title={'Ping'}
-      /> 
+      <Chart labels={chartData?.labels} pingChartData={chartData?.pingData} title={'Ping'} />
 
       <Tables />
     </>
