@@ -59,8 +59,8 @@ function App() {
         <Space style={{ marginLeft: 'auto' }}>
           <Button type='primary' loading={isLoading} onClick={handleExecuteSpeedtest}>Execute</Button>
           
-          <UserInfo isAuthenticated />
-          <UserInfo isAuthenticated = {false} />
+          {/* <UserInfo isAuthenticated />
+          <UserInfo isAuthenticated = {false} /> */}
         </Space>
       </Header>
       <Layout>

@@ -19,7 +19,8 @@ import {
 import annotationPlugin from 'chartjs-plugin-annotation'
 import Chart from 'components/Chart'
 import MetricCard from 'components/MetricCard'
-import { getCharts, getSpeedtestLatest } from 'services/metricServices'
+import Tables from 'components/Tables'
+import { getCharts, getLatestDownload, getSpeedtestLatest } from 'services/metricServices'
 import { formatPing, formatSpeed } from 'utils/helper'
 
 const { Title: AntTitle, Text } = Typography
@@ -38,7 +39,7 @@ ChartJS.register(
 
 type unitType = 'bps' | 'kbps' | 'mbps' | 'gbps'
 
-export default function HomePage() {
+export default function Dashboard() {
   const [downloadSpeed, setDownloadSpeed] = React.useState<number>(0)
   const [uploadSpeed, setUploadSpeed] = React.useState<number>(0)
   const [ping, setPing] = React.useState<number>(0)
@@ -70,7 +71,7 @@ export default function HomePage() {
         ),
         downloadData: data.map((item: any) => formatSpeed(item.download_speed, false)),
         uploadData: data.map((item: any) => formatSpeed(item.upload_speed, false)),
-        pingData: data.map((item: any) => formatPing(item.ping.latency, false)),
+        pingData: data.map((item: any) => formatSpeed(item.ping.latency, false)),
       }
     },
   })
@@ -116,7 +117,7 @@ export default function HomePage() {
             downloadSpeed={downloadSpeed}
             title='Latest download'
             icon={<DownloadOutlined />}
-            formatFunction={(speed) => formatSpeed(speed)}
+            formatFunction={speed => formatSpeed(speed)}
           />
         </Col>
         <Col span={8} xs={24} sm={12} md={8}>
@@ -170,6 +171,8 @@ export default function HomePage() {
       )}
 
       <Chart labels={chartData?.labels} pingChartData={chartData?.pingData} title={'Ping'} />
+
+      <Tables />
     </>
   )
 }

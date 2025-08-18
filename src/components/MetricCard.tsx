@@ -1,5 +1,4 @@
 import { Card, Typography } from 'antd'
-import { formatSpeed } from 'utils/helper'
 
 const { Text } = Typography
 
@@ -7,8 +6,9 @@ export default function MetricCard(props: {
   downloadSpeed: number
   title: string
   icon: React.ReactNode
+  formatFunction: (speed: number) => string
 }) {
-  const { downloadSpeed, title, icon } = props
+  const { downloadSpeed, title, icon, formatFunction } = props
 
   return (
     <Card className='metric-card'>
@@ -20,7 +20,7 @@ export default function MetricCard(props: {
         </Text>
       </span>
 
-      <h1>{formatSpeed(downloadSpeed)}</h1>
+      <h1>{formatFunction(downloadSpeed)}</h1>
     </Card>
   )
 }
