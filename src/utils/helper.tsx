@@ -1,28 +1,59 @@
-export function formatSpeed(bps: number, includeUnit = true, convertTo: string = 'mbps'): string {
+import { unitType } from "routes/HomePage";
+
+export function formatSpeed(bps: number, includeUnit = true, convertTo: unitType = 'Mbps', isReadable = true): string {
   let speedInMbps = bps / 125_000;
+  let convertedSpeed: string|number = speedInMbps;
 
   switch (convertTo) {
     case 'bps':
-      return `${bps}` + (includeUnit ? ' bps' : '');
-    case 'kbps':
-      return `${(speedInMbps * 1_000).toFixed(2)}` + (includeUnit ? ' Kbps' : '');
-    case 'gbps':
-      return `${(speedInMbps / 1_000).toFixed(2)}` + (includeUnit ? ' Gbps' : '');
-    default:
-      return `${(speedInMbps).toFixed(2)}` + (includeUnit ? ' Mbps' : '');
+      convertedSpeed = bps
+      break
+    case 'Kbps':
+      convertedSpeed =  speedInMbps * 1_000
+      break;
+    case 'Gbps':
+      convertedSpeed = speedInMbps / 1_000
+      break;
   }
+
+  if (isReadable) {
+    convertedSpeed = convertedSpeed.toLocaleString(undefined, { maximumFractionDigits: 2 })
+  }
+
+  return convertedSpeed + (includeUnit ? ' ' + convertTo : '')
 }
 
-export function formatPing(pingInMb: number, includeUnit = true, convertTo: string = 'mb'): string {
+export function formatPing(pingInMb: number, includeUnit = true, convertTo: unitType = 'Mbps', isReadable = true): string {
+  let pingInMbps = pingInMb;
+  let convertedSpeed: string|number = pingInMbps;
 
   switch (convertTo) {
     case 'bps':
-      return `${pingInMb * 1_000_000}` + (includeUnit ? ' bps' : '');
-    case 'kbps':
-      return `${(pingInMb * 1_000).toFixed(2)}` + (includeUnit ? ' Kbps' : '');
-    case 'gbps':
-      return `${(pingInMb / 1_000).toFixed(2)}` + (includeUnit ? ' Gbps' : '');
-    default:
-      return `${(pingInMb).toFixed(2)}` + (includeUnit ? ' Mbps' : '');
+      convertedSpeed = pingInMbps * 1_000_000
+      break;
+    case 'Kbps':
+      convertedSpeed = pingInMbps * 1_000
+      break;
+    case 'Gbps':
+      convertedSpeed = pingInMbps / 1_000
+      break;
   }
+
+  if (isReadable) {
+    convertedSpeed = convertedSpeed.toLocaleString(undefined, { maximumFractionDigits: 2 })
+  }
+
+  return convertedSpeed + (includeUnit ? ' ' + convertTo : '');
+}
+
+export function buildSearchParams(params: Record<string, any>): string {
+  const searchParams = new URLSearchParams();
+
+  Object.entries(params).forEach(([key, value]) => {
+    if (value !== undefined && value !== null) {
+      searchParams.append(key, String(value));
+    }
+  });
+
+  return searchParams.toString();
 }

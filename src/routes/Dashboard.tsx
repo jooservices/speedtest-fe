@@ -3,6 +3,7 @@ import { useQuery } from 'react-query'
 
 import { get } from 'lodash'
 
+import { unitType } from './HomePage'
 import { ClockCircleOutlined, DownloadOutlined, UploadOutlined } from '@ant-design/icons'
 import { Button, DatePicker, DatePickerProps, Select, Space, Typography } from 'antd'
 import { Col, Row } from 'antd'
@@ -20,7 +21,7 @@ import annotationPlugin from 'chartjs-plugin-annotation'
 import Chart from 'components/Chart'
 import MetricCard from 'components/MetricCard'
 import Tables from 'components/Tables'
-import { getCharts, getLatestDownload, getSpeedtestLatest } from 'services/metricServices'
+import { getSpeedtest } from 'services/metricServices'
 import { formatPing, formatSpeed } from 'utils/helper'
 
 const { Title: AntTitle, Text } = Typography
@@ -37,21 +38,46 @@ ChartJS.register(
   annotationPlugin
 )
 
-type unitType = 'bps' | 'kbps' | 'mbps' | 'gbps'
-
 export default function Dashboard() {
   const [downloadSpeed, setDownloadSpeed] = React.useState<number>(0)
   const [uploadSpeed, setUploadSpeed] = React.useState<number>(0)
   const [ping, setPing] = React.useState<number>(0)
   const [isCompare, setIsCompare] = React.useState<boolean>(false)
-  const [unit, setUnit] = React.useState<unitType>('mbps')
+  const [displayUnit, setDisplayUnit] = React.useState<unitType>('Mbps')
+  const [chartFilters, setChartFilters] = React.useState({
+    orderDir: 'asc',
+    from: '',
+    to: '',
+  })
 
-  const { data: latestData } = useQuery('getSpeedtestLatest', getSpeedtestLatest)
+  const { data: latestData } = useQuery(
+    'getSpeedtestLatest',
+    () =>
+      getSpeedtest({
+        orderBy: 'created_at',
+        orderDir: 'desc',
+        limit: 1,
+      }),
+    {
+      select({ data }) {
+        if (!data || !data.length) {
+          return null
+        }
+
+        return data[0]
+      },
+    }
+  )
 
   const onChange: DatePickerProps['onChange'] = (date, dateString) => {
-    console.log(date, dateString)
+    setChartFilters({
+      ...chartFilters,
+      from: dateString[0],
+      to: dateString[1],
+    })
   }
-  const { data: chartData } = useQuery('getCharts', getCharts, {
+
+  const { data: chartData } = useQuery('getCharts', () => getSpeedtest(chartFilters), {
     cacheTime: 1000 * 60 * 30, // cache for 30 mins
     refetchInterval: 1000 * 60 * 30, // refreshes every 30 mins
     refetchOnWindowFocus: false,
@@ -69,18 +95,22 @@ export default function Dashboard() {
             minute: '2-digit',
           })
         ),
-        downloadData: data.map((item: any) => formatSpeed(item.download_speed, false)),
-        uploadData: data.map((item: any) => formatSpeed(item.upload_speed, false)),
-        pingData: data.map((item: any) => formatSpeed(item.ping.latency, false)),
+        downloadData: data.map((item: any) =>
+          formatSpeed(item.download_speed, false, displayUnit, false)
+        ),
+        uploadData: data.map((item: any) =>
+          formatSpeed(item.upload_speed, false, displayUnit, false)
+        ),
+        pingData: data.map((item: any) => formatPing(item.ping.latency, false, displayUnit, false)),
       }
     },
   })
 
   useEffect(() => {
     if (latestData) {
-      const downloadSpeed = get(latestData, 'data.download_speed', 0)
-      const uploadSpeed = get(latestData, 'data.upload_speed', 0)
-      const ping = get(latestData, 'data.ping.latency', 0)
+      const downloadSpeed = get(latestData, 'download_speed', 0)
+      const uploadSpeed = get(latestData, 'upload_speed', 0)
+      const ping = get(latestData, 'ping.latency', 0)
       setDownloadSpeed(downloadSpeed)
       setUploadSpeed(uploadSpeed)
       setPing(ping)
@@ -91,7 +121,7 @@ export default function Dashboard() {
     <>
       <Row style={{ marginLeft: '8px' }}>
         <Space direction='vertical'>
-          <AntTitle style={{ margin: 0 }}>Homepage</AntTitle>
+          <AntTitle style={{ margin: 0 }}>Dashboard</AntTitle>
           <Text type='secondary'>Next speed test at: 27 Nov 2022, 22:06</Text>
         </Space>
       </Row>
@@ -102,11 +132,14 @@ export default function Dashboard() {
         </Space>
         <Space direction='horizontal'>
           <Text type='secondary'>Unit</Text>
-          <Select defaultValue={unit} onChange={value => setUnit(value)} style={{ width: 120 }}>
+          <Select
+            defaultValue={displayUnit}
+            onChange={value => setDisplayUnit(value)}
+            style={{ width: 120 }}>
             <Select.Option value='bps'>bps</Select.Option>
-            <Select.Option value='kbps'>Kbps</Select.Option>
-            <Select.Option value='mbps'>Mbps</Select.Option>
-            <Select.Option value='gbps'>Gbps</Select.Option>
+            <Select.Option value='Kbps'>Kbps</Select.Option>
+            <Select.Option value='Mbps'>Mbps</Select.Option>
+            <Select.Option value='Gbps'>Gbps</Select.Option>
           </Select>
         </Space>
       </Row>
@@ -117,14 +150,24 @@ export default function Dashboard() {
             downloadSpeed={downloadSpeed}
             title='Latest download'
             icon={<DownloadOutlined />}
-            formatFunction={speed => formatSpeed(speed)}
+            formatFunction={speed => formatSpeed(speed, true, displayUnit)}
           />
         </Col>
         <Col span={8} xs={24} sm={12} md={8}>
-          <MetricCard downloadSpeed={uploadSpeed} title='Latest upload' icon={<UploadOutlined />} formatFunction={(speed) => formatSpeed(speed)} />
+          <MetricCard
+            downloadSpeed={uploadSpeed}
+            title='Latest upload'
+            icon={<UploadOutlined />}
+            formatFunction={speed => formatSpeed(speed, true, displayUnit)}
+          />
         </Col>
         <Col span={8} xs={24} sm={12} md={8}>
-          <MetricCard downloadSpeed={ping} title='Latest ping' icon={<ClockCircleOutlined />} formatFunction={(speed) => formatPing(speed)} />
+          <MetricCard
+            downloadSpeed={ping}
+            title='Latest ping'
+            icon={<ClockCircleOutlined />}
+            formatFunction={speed => formatPing(speed, true, displayUnit)}
+          />
         </Col>
       </Row>
 
@@ -144,11 +187,13 @@ export default function Dashboard() {
             }
             downloadChartData={chartData?.downloadData}
             title={'Download'}
+            displayUnit={displayUnit}
           />
           <Chart
             labels={chartData?.labels}
             uploadChartData={chartData?.uploadData}
             title={'Upload'}
+            displayUnit={displayUnit}
           />
         </>
       ) : (
@@ -167,10 +212,16 @@ export default function Dashboard() {
           downloadChartData={chartData?.downloadData}
           uploadChartData={chartData?.uploadData}
           title={'Download & Upload'}
+          displayUnit={displayUnit}
         />
       )}
 
-      <Chart labels={chartData?.labels} pingChartData={chartData?.pingData} title={'Ping'} />
+      <Chart
+        labels={chartData?.labels}
+        pingChartData={chartData?.pingData}
+        title={'Ping'}
+        displayUnit={displayUnit}
+      />
 
       <Tables />
     </>
