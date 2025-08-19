@@ -41,7 +41,7 @@ function App() {
     <Layout style={{ minHeight: '98vh' }}>
       <Header style={{ display: 'flex', alignItems: 'center' }}>
         <Space>
-          <div style={{ color: 'white' }}>JOO-SPEED</div>
+          <p className='font-bold' style={{ color: 'white' }}>JOO-SPEED</p>
           <Button
             type='text'
             icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
