@@ -32,8 +32,9 @@ export default function Chart(props: {
   pingChartData?: string[]
   actionButton?: JSX.Element
   title?: string
+  displayUnit: string
 }) {
-  const { actionButton, downloadChartData, uploadChartData, pingChartData, labels, title } = props
+  const { actionButton, downloadChartData, uploadChartData, pingChartData, labels, title, displayUnit } = props
   const [chartData, setChartData] = useState<any>({
     labels,
     datasets: [],
@@ -97,7 +98,7 @@ export default function Chart(props: {
         marginTop: '20px',
       }}>
       <Flex style={{ justifyContent: 'space-between' }}>
-        <h2 style={{ color: 'white' }}>{title} (Mbps)</h2>
+        <h2 style={{ color: 'white' }}>{title} ({displayUnit})</h2>
         {actionButton ? actionButton : null}
       </Flex>
       <Line style={{ paddingBottom: '60px' }} data={chartData} options={options} />

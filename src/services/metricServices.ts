@@ -2,43 +2,15 @@
 import { VITE_API_ENDPOINT as ENDPOINT } from 'constants/endPoint'
 
 import httpRequest from './httpRequest'
+import { buildSearchParams } from 'utils/helper'
 
-const getLatestDownload = (): Promise<any> => {
+const getSpeedtest = (params: {}): Promise<any> => {
+
+  const searchParams = buildSearchParams(params)
+
   const obj = {
-    url: `${ENDPOINT}/latest-download-speed`,
+    url: `${ENDPOINT}/speedtest?${searchParams}`,
   }
-
-  return httpRequest.get(obj)
-}
-
-const getSpeedtestLatest = (): Promise<any> => {
-  const obj = {
-    url: `${ENDPOINT}/speedtest/latest`,
-  }
-
-  return httpRequest.get(obj)
-}
-
-const getLatestUpload = (): Promise<any> => {
-  const obj = {
-    url: `${ENDPOINT}/latest-upload-speed`,
-  }
-
-  return httpRequest.get(obj)
-}
-
-const ping = (): Promise<any> => {
-  const obj = {
-    url: `${ENDPOINT}`,
-  }
-
-  return httpRequest.get(obj)
-}
-
-const getCharts = (): Promise<any> => {
-  const obj = {
-    url: `${ENDPOINT}/speedtest`,
-  } as any
 
   return httpRequest.get(obj)
 }
@@ -52,4 +24,12 @@ const executeSpeedtest = (): Promise<any> => {
   return httpRequest.post(obj)
 }
 
-export { getLatestDownload, getLatestUpload, ping, getCharts, getSpeedtestLatest, executeSpeedtest }
+const getMyIp = (): Promise<any> => {
+  const obj = {
+    url: `${ENDPOINT}/speedtest/requestIp`,
+  }
+
+  return httpRequest.get(obj)
+}
+
+export { getSpeedtest, executeSpeedtest, getMyIp }
