@@ -32,4 +32,15 @@ const getMyIp = (): Promise<any> => {
   return httpRequest.get(obj)
 }
 
-export { getSpeedtest, executeSpeedtest, getMyIp }
+const getSpeedtestByDate = (params: {}): Promise<any> => {
+
+  const searchParams = buildSearchParams(params)
+
+  const obj = {
+    url: `${ENDPOINT}/speedtest/byDate?${searchParams}`,
+  }
+
+  return httpRequest.get(obj)
+}
+
+export { getSpeedtest, executeSpeedtest, getMyIp, getSpeedtestByDate }
