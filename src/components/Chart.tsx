@@ -1,8 +1,8 @@
 import { JSX, useEffect, useState } from 'react'
-import { Bubble, Line } from 'react-chartjs-2'
+import { Line } from 'react-chartjs-2'
 
 import { Flex } from 'antd'
-import { ChartData, ChartOptions } from 'chart.js'
+import { ChartOptions } from 'chart.js'
 
 
 
@@ -48,7 +48,6 @@ export default function Chart(props: {
           color: '#ffffff', 
           callback: function (val) {
             const label = this.getLabelForValue(Number(val));
-            console.log(label);
             const [date, time] = label.split(',').map(s => s.trim());
             const now = new Date();
             const [day, month] = date.split('/');

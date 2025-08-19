@@ -21,8 +21,9 @@ import annotationPlugin from 'chartjs-plugin-annotation'
 import Chart from 'components/Chart'
 import MetricCard from 'components/MetricCard'
 import Tables from 'components/Tables'
-import { getSpeedtest } from 'services/metricServices'
+import { getSpeedtest, getSpeedtestByDate } from 'services/metricServices'
 import { formatPing, formatSpeed } from 'utils/helper'
+import BarBasic from 'components/BarBasic'
 
 const { Title: AntTitle, Text } = Typography
 const { RangePicker } = DatePicker
@@ -43,6 +44,7 @@ export default function Dashboard() {
   const [uploadSpeed, setUploadSpeed] = React.useState<number>(0)
   const [ping, setPing] = React.useState<number>(0)
   const [isCompare, setIsCompare] = React.useState<boolean>(false)
+  const [isCompareMinMax, setIsCompareMinMax] = React.useState<boolean>(false)
   const [displayUnit, setDisplayUnit] = React.useState<unitType>('Mbps')
   const [chartFilters, setChartFilters] = React.useState({
     orderDir: 'asc',
@@ -105,6 +107,52 @@ export default function Dashboard() {
       }
     },
   })
+
+  const { data: minMaxData } = useQuery(
+    'getSpeedtestByDate',
+    () =>
+      getSpeedtestByDate({
+        orderBy: 'created_at',
+        orderDir: 'desc',
+        limit: 1,
+      }),
+    {
+      select({ data }) {
+        if (!data || !data.length) {
+          return null
+        }
+
+        return {
+          labels: data.map((item: any) =>
+            new Date(item.created_at).toLocaleString('en-GB', {
+              day: '2-digit',
+              month: '2-digit',
+              hour: '2-digit',
+              minute: '2-digit',
+            })
+          ),
+          maxDownloadSpeed: data.map((item: any) =>
+            formatSpeed(item.max_download_speed, false, displayUnit, false)
+          ),
+          maxUploadSpeed: data.map((item: any) =>
+            formatSpeed(item.max_upload_speed, false, displayUnit, false)
+          ),
+          maxPacketLoss: data.map((item: any) =>
+            formatSpeed(item.max_packet_loss, false, displayUnit, false)
+          ),
+          minDownloadSpeed: data.map((item: any) =>
+            formatSpeed(item.min_download_speed, false, displayUnit, false)
+          ),
+          minUploadSpeed: data.map((item: any) => 
+            formatSpeed(item.min_upload_speed, false, displayUnit, false)
+          ),
+          minPacketLoss: data.map((item: any) =>
+            formatSpeed(item.min_packet_loss, false, displayUnit, false)
+          ),
+        }
+      },
+    }
+  )
 
   useEffect(() => {
     if (latestData) {
@@ -221,6 +269,76 @@ export default function Dashboard() {
         pingChartData={chartData?.pingData}
         title={'Ping'}
         displayUnit={displayUnit}
+      />
+
+      {!isCompareMinMax ? (
+        <>
+          <BarBasic 
+            labels={minMaxData?.labels} 
+            datasets={[
+              { label: "Max", data: minMaxData?.maxDownloadSpeed, backgroundColor: "#00bfff" },
+              { label: "Min", data: minMaxData?.minDownloadSpeed, backgroundColor: "#00ff62ff" },
+            ]} 
+            height={360}
+            title="Max & Min Download" 
+            displayUnit = {displayUnit} 
+            actionButton={
+              <Space>
+                <Button
+                  onClick={() => {
+                    setIsCompareMinMax(!isCompareMinMax)
+                  }}>
+                  {isCompareMinMax ? 'Combined' : 'Separated'}
+                </Button>
+              </Space>
+            }
+          />
+
+          <BarBasic 
+            labels={minMaxData?.labels} 
+            datasets={[
+              { label: "Max", data: minMaxData?.maxUploadSpeed, backgroundColor: "#4447eaff" },
+              { label: "Min", data: minMaxData?.minUploadSpeed, backgroundColor: "#ead640ff" },
+            ]} 
+            height={360}  
+            title="Max & Min Upload" 
+            displayUnit = {displayUnit}
+          />
+        </>
+      ) : (
+        <BarBasic 
+          labels={minMaxData?.labels} 
+          datasets={[
+            { label: "Max Download", data: minMaxData?.maxDownloadSpeed, backgroundColor: "#00bfff" },
+            { label: "Min Download", data: minMaxData?.maxUploadSpeed, backgroundColor: "#00ff62ff" },
+            { label: "Max Upload", data: minMaxData?.minDownloadSpeed, backgroundColor: "#4447eaff" },
+            { label: "Min Upload", data: minMaxData?.minUploadSpeed, backgroundColor: "#ead640ff" },
+          ]} 
+          height={360}  
+          title="Max & Min Download & Upload" 
+          displayUnit = {displayUnit}
+          actionButton={
+            <Space>
+              <Button
+                onClick={() => {
+                  setIsCompareMinMax(!isCompareMinMax)
+                }}>
+                {isCompareMinMax ? 'Combined' : 'Separated'}
+              </Button>
+            </Space>
+          }
+        />
+      )}
+      
+      <BarBasic 
+        labels={minMaxData?.labels} 
+        datasets={[
+          { label: "Max", data: minMaxData?.maxPacketLoss, backgroundColor: "#d605faff" },
+          { label: "Min", data: minMaxData?.minPacketLoss, backgroundColor: "#d6f511ff" },
+        ]} 
+        height={360}  
+        title="Max & Min Packet Loss" 
+        displayUnit = {displayUnit}
       />
 
       <Tables />
