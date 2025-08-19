@@ -1,29 +1,10 @@
 import { JSX, useEffect, useState } from 'react'
-import { Line } from 'react-chartjs-2'
+import { Bubble, Line } from 'react-chartjs-2'
 
 import { Flex } from 'antd'
-import { ChartOptions } from 'chart.js'
+import { ChartData, ChartOptions } from 'chart.js'
 
-const options: ChartOptions<'line'> = {
-  responsive: true,
-  maintainAspectRatio: false,
-  plugins: {
-    legend: {
-      position: 'bottom', // Legend at bottom
-      labels: { color: '#ffffff' },
-    },
-  },
-  scales: {
-    x: {
-      ticks: { color: '#ffffff' },
-      grid: { color: '#333333' },
-    },
-    y: {
-      ticks: { color: '#ffffff' },
-      grid: { color: '#333333' },
-    },
-  },
-}
+
 
 export default function Chart(props: {
   labels: any
@@ -39,6 +20,64 @@ export default function Chart(props: {
     labels,
     datasets: [],
   })
+
+  const options: ChartOptions<'line'> = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: 'bottom',
+        labels: { color: '#ffffff' },
+      },
+      tooltip: {
+        callbacks: {
+          title: () => '',
+          label: (context) => {
+            const value = context.raw as number;
+            return value.toLocaleString('en-US', {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            });
+          },
+        },
+      },
+    },
+    scales: {
+      x: {
+        ticks: { 
+          color: '#ffffff', 
+          callback: function (val) {
+            const label = this.getLabelForValue(Number(val));
+            console.log(label);
+            const [date, time] = label.split(',').map(s => s.trim());
+            const now = new Date();
+            const [day, month] = date.split('/');
+            const [hour, minute] = time.split(':');
+            const d = new Date(
+              now.getFullYear(),
+              Number(month) - 1,
+              Number(day),
+              Number(hour),
+              Number(minute),
+              0,
+              0
+            );
+
+            const pad = (n: number, len = 2) => String(n).padStart(len, '0');
+            return `${pad(d.getDate())}/${pad(d.getMonth() + 1)} ` +
+                  `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+          },
+        },
+        grid: { color: '#333333' },
+      },
+      y: {
+        ticks: { 
+          color: '#ffffff',
+        },
+        grid: { color: '#333333' },
+      },
+    },
+  }
 
   useEffect(() => {
     const newChartDataAsset = []
