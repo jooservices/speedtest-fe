@@ -12,6 +12,7 @@ import SideBarContainer from 'containers/SideBarContainer'
 import { useMutation } from 'react-query'
 import { toast } from 'react-toastify'
 import { executeSpeedtest } from 'services/metricServices'
+import { Footer } from 'antd/es/layout/layout'
 
 const { Header, Content } = Layout
 
@@ -78,6 +79,10 @@ function App() {
           </Content>
         </Layout>
       </Layout>
+
+      <Footer style={{ textAlign: 'center', paddingTop: 0 }}>
+        Copyright ©{new Date().getFullYear()}
+      </Footer>
     </Layout>
   )
 }
