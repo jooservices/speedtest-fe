@@ -52,7 +52,7 @@ export default function Dashboard() {
     to: '',
   })
 
-  const { data: latestData } = useQuery(
+  const { data: latestData, refetch: refetchLastestData } = useQuery(
     'getSpeedtestLatest',
     () =>
       getSpeedtest({
@@ -79,7 +79,7 @@ export default function Dashboard() {
     })
   }
 
-  const { data: chartData } = useQuery('getCharts', () => getSpeedtest(chartFilters), {
+  const { data: chartData, refetch: refetchChartData } = useQuery('getCharts', () => getSpeedtest(chartFilters), {
     cacheTime: 1000 * 60 * 30, // cache for 30 mins
     refetchInterval: 1000 * 60 * 30, // refreshes every 30 mins
     refetchOnWindowFocus: false,
@@ -108,7 +108,7 @@ export default function Dashboard() {
     },
   })
 
-  const { data: minMaxData } = useQuery(
+  const { data: minMaxData, refetch: refetchMinMaxData } = useQuery(
     'getSpeedtestByDate',
     () =>
       getSpeedtestByDate({
@@ -164,6 +164,14 @@ export default function Dashboard() {
       setPing(ping)
     }
   }, [latestData])
+
+  useEffect(() => {
+    if (chartFilters) {
+      refetchChartData()
+      refetchLastestData()
+      refetchMinMaxData()
+    }
+  }, [chartFilters])
 
   return (
     <>
