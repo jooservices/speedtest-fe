@@ -112,9 +112,7 @@ export default function Dashboard() {
     'getSpeedtestByDate',
     () =>
       getSpeedtestByDate({
-        orderBy: 'created_at',
-        orderDir: 'desc',
-        limit: 1,
+        ...chartFilters,
       }),
     {
       select({ data }) {
@@ -148,6 +146,15 @@ export default function Dashboard() {
           ),
           minPacketLoss: data.map((item: any) =>
             formatSpeed(item.min_packet_loss, false, displayUnit, false)
+          ),
+          averageDownloadSpeed: data.map((item: any) =>
+            formatSpeed(item.average_download_speed, false, displayUnit, false)
+          ),
+          averageUploadSpeed: data.map((item: any) =>
+            formatSpeed(item.average_upload_speed, false, displayUnit, false)
+          ),
+          averagePacketLoss: data.map((item: any) =>
+            formatSpeed(item.average_packet_loss, false, displayUnit, false)
           ),
         }
       },
@@ -348,6 +355,19 @@ export default function Dashboard() {
         title="Max & Min Packet Loss" 
         displayUnit = {displayUnit}
       />
+
+      <BarBasic 
+        labels={minMaxData?.labels} 
+        datasets={[
+          { label: "Download", data: minMaxData?.averageDownloadSpeed, backgroundColor: "#1a06ffff" },
+          { label: "Upload", data: minMaxData?.averageUploadSpeed, backgroundColor: "#fa0112ff" },
+          { label: "Packet Loss", data: minMaxData?.averagePacketLoss, backgroundColor: "#01f71dff" },
+        ]} 
+        height={360}  
+        title="Average Download & Upload" 
+        displayUnit = {displayUnit}
+      />
+      
 
       <Tables />
     </>
