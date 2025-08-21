@@ -103,7 +103,7 @@ export default function Dashboard() {
         uploadData: data.map((item: any) =>
           formatSpeed(item.upload_speed, false, displayUnit, false)
         ),
-        pingData: data.map((item: any) => formatPing(item.ping.latency, false, displayUnit, false)),
+        pingData: data.map((item: any) => formatPing(item.ping.latency, false, false)),
       }
     },
   })
@@ -229,7 +229,7 @@ export default function Dashboard() {
             downloadSpeed={ping}
             title='Latest ping'
             icon={<ClockCircleOutlined />}
-            formatFunction={speed => formatPing(speed, true, displayUnit)}
+            formatFunction={speed => formatPing(speed, true)}
           />
         </Col>
       </Row>
@@ -283,7 +283,7 @@ export default function Dashboard() {
         labels={chartData?.labels}
         pingChartData={chartData?.pingData}
         title={'Ping'}
-        displayUnit={displayUnit}
+        displayUnit={'ms'}
       />
 
       {!isCompareMinMax ? (
