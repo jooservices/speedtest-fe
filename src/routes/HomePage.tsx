@@ -105,7 +105,7 @@ export default function HomePage() {
             formatSpeed(item.upload_speed, false, displayUnit, false)
           ),
           pingData: data.map((item: any) =>
-            formatPing(item.ping.latency, false, displayUnit, false)
+            formatPing(item.ping.latency, false, false)
           ),
         }
       },
@@ -183,7 +183,7 @@ export default function HomePage() {
             downloadSpeed={ping}
             title='Latest ping'
             icon={<ClockCircleOutlined />}
-            formatFunction={speed => formatPing(speed, true, displayUnit)}
+            formatFunction={speed => formatPing(speed, true)}
           />
         </Col>
       </Row>
@@ -247,7 +247,7 @@ export default function HomePage() {
         labels={chartData?.labels}
         pingChartData={chartData?.pingData}
         title={'Ping'}
-        displayUnit={displayUnit}
+        displayUnit={'ms'}
       />
     </>
   )
