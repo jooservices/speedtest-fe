@@ -24,6 +24,7 @@ import Tables from 'components/Tables'
 import { getSpeedtest, getSpeedtestByDate } from 'services/metricServices'
 import { formatPing, formatSpeed } from 'utils/helper'
 import BarBasic from 'components/BarBasic'
+import dayjs from 'dayjs'
 
 const { Title: AntTitle, Text } = Typography
 const { RangePicker } = DatePicker
@@ -48,8 +49,8 @@ export default function Dashboard() {
   const [displayUnit, setDisplayUnit] = React.useState<unitType>('Mbps')
   const [chartFilters, setChartFilters] = React.useState({
     orderDir: 'asc',
-    from: '',
-    to: '',
+    from: new Date().toISOString().slice(0, 10),
+    to: new Date().toISOString().slice(0, 10),
   })
 
   const { data: latestData, refetch: refetchLastestData } = useQuery(
@@ -191,7 +192,10 @@ export default function Dashboard() {
 
       <Row style={{ marginLeft: '8px', marginTop: '8px', justifyContent: 'space-between' }}>
         <Space direction='vertical'>
-          <RangePicker onChange={onChange} />
+          <RangePicker 
+            defaultValue={[dayjs(), dayjs()]}
+            onChange={onChange} 
+          />
         </Space>
         <Space direction='horizontal'>
           <Text type='secondary'>Unit</Text>
@@ -234,142 +238,80 @@ export default function Dashboard() {
         </Col>
       </Row>
 
-      {!isCompare ? (
-        <>
+      <Row style={{ margin: '12px 0px' }}>  
+        <Col span={12} xs={24} sm={24} md={12} style={{ paddingRight: '6px' }}>
           <Chart
             labels={chartData?.labels}
-            actionButton={
-              <Space>
-                <Button
-                  onClick={() => {
-                    setIsCompare(!isCompare)
-                  }}>
-                  {isCompare ? 'Combined' : 'Separated'}
-                </Button>
-              </Space>
-            }
             downloadChartData={chartData?.downloadData}
-            title={'Download'}
+            uploadChartData={chartData?.uploadData}
+            title={'Download & Upload'}
             displayUnit={displayUnit}
           />
+        </Col>
+        <Col span={12} xs={24} sm={24} md={12} style={{ paddingLeft: '6px' }}>
           <Chart
             labels={chartData?.labels}
-            uploadChartData={chartData?.uploadData}
-            title={'Upload'}
-            displayUnit={displayUnit}
+            pingChartData={chartData?.pingData}
+            title={'Ping'}
+            displayUnit={'ms'}
           />
-        </>
-      ) : (
-        <Chart
-          labels={chartData?.labels}
-          actionButton={
-            <Space>
-              <Button
-                onClick={() => {
-                  setIsCompare(!isCompare)
-                }}>
-                {isCompare ? 'Combined' : 'Separated'}
-              </Button>
-            </Space>
-          }
-          downloadChartData={chartData?.downloadData}
-          uploadChartData={chartData?.uploadData}
-          title={'Download & Upload'}
-          displayUnit={displayUnit}
-        />
-      )}
+        </Col>
+      </Row>
 
-      <Chart
-        labels={chartData?.labels}
-        pingChartData={chartData?.pingData}
-        title={'Ping'}
-        displayUnit={'ms'}
-      />
-
-      {!isCompareMinMax ? (
-        <>
+      <Row style={{ margin: '12px 0px' }}>  
+        <Col span={12} xs={24} sm={24} md={12} style={{ paddingRight: '6px' }}>
           <BarBasic 
             labels={minMaxData?.labels} 
             datasets={[
-              { label: "Max", data: minMaxData?.maxDownloadSpeed, backgroundColor: "#00bfff" },
-              { label: "Min", data: minMaxData?.minDownloadSpeed, backgroundColor: "#00ff62ff" },
-            ]} 
-            height={360}
-            title="Max & Min Download" 
-            displayUnit = {displayUnit} 
-            actionButton={
-              <Space>
-                <Button
-                  onClick={() => {
-                    setIsCompareMinMax(!isCompareMinMax)
-                  }}>
-                  {isCompareMinMax ? 'Combined' : 'Separated'}
-                </Button>
-              </Space>
-            }
-          />
-
-          <BarBasic 
-            labels={minMaxData?.labels} 
-            datasets={[
-              { label: "Max", data: minMaxData?.maxUploadSpeed, backgroundColor: "#4447eaff" },
-              { label: "Min", data: minMaxData?.minUploadSpeed, backgroundColor: "#ead640ff" },
+              { label: "Download", data: minMaxData?.averageDownloadSpeed, backgroundColor: "#00bfff" },
+              { label: "Upload", data: minMaxData?.averageUploadSpeed, backgroundColor: "#00ff62ff" },
             ]} 
             height={360}  
-            title="Max & Min Upload" 
+            title="Average Download & Upload" 
             displayUnit = {displayUnit}
           />
-        </>
-      ) : (
-        <BarBasic 
-          labels={minMaxData?.labels} 
-          datasets={[
-            { label: "Max Download", data: minMaxData?.maxDownloadSpeed, backgroundColor: "#00bfff" },
-            { label: "Min Download", data: minMaxData?.maxUploadSpeed, backgroundColor: "#00ff62ff" },
-            { label: "Max Upload", data: minMaxData?.minDownloadSpeed, backgroundColor: "#4447eaff" },
-            { label: "Min Upload", data: minMaxData?.minUploadSpeed, backgroundColor: "#ead640ff" },
-          ]} 
-          height={360}  
-          title="Max & Min Download & Upload" 
-          displayUnit = {displayUnit}
-          actionButton={
-            <Space>
-              <Button
-                onClick={() => {
-                  setIsCompareMinMax(!isCompareMinMax)
-                }}>
-                {isCompareMinMax ? 'Combined' : 'Separated'}
-              </Button>
-            </Space>
-          }
-        />
-      )}
-      
-      <BarBasic 
-        labels={minMaxData?.labels} 
-        datasets={[
-          { label: "Max", data: minMaxData?.maxPacketLoss, backgroundColor: "#d605faff" },
-          { label: "Min", data: minMaxData?.minPacketLoss, backgroundColor: "#d6f511ff" },
-        ]} 
-        height={360}  
-        title="Max & Min Packet Loss" 
-        displayUnit = {displayUnit}
-      />
+        </Col>
+        <Col span={12} xs={24} sm={24} md={12} style={{ paddingLeft: '6px' }}>
+          <BarBasic 
+            labels={minMaxData?.labels} 
+            datasets={[
+              { label: "Ping", data: minMaxData?.averageDownloadSpeed, backgroundColor: "#ff0000ff" },
+            ]} 
+            height={360}  
+            title="Average Ping" 
+            displayUnit = {displayUnit}
+          />
+        </Col>
+      </Row>
 
-      <BarBasic 
-        labels={minMaxData?.labels} 
-        datasets={[
-          { label: "Download", data: minMaxData?.averageDownloadSpeed, backgroundColor: "#1a06ffff" },
-          { label: "Upload", data: minMaxData?.averageUploadSpeed, backgroundColor: "#fa0112ff" },
-          { label: "Packet Loss", data: minMaxData?.averagePacketLoss, backgroundColor: "#01f71dff" },
-        ]} 
-        height={360}  
-        title="Average Download & Upload" 
-        displayUnit = {displayUnit}
-      />
-      
-
-      <Tables />
+      <Row style={{ margin: '12px 0px' }}>  
+        <Col span={12} xs={24} sm={24} md={12} style={{ paddingRight: '6px' }}>
+          <BarBasic 
+            labels={minMaxData?.labels} 
+            datasets={[
+              { label: "Max Download", data: minMaxData?.maxDownloadSpeed, backgroundColor: "#00bfff" },
+              { label: "Min Download", data: minMaxData?.maxUploadSpeed, backgroundColor: "#00ff62ff" },
+              { label: "Max Upload", data: minMaxData?.minDownloadSpeed, backgroundColor: "#4447eaff" },
+              { label: "Min Upload", data: minMaxData?.minUploadSpeed, backgroundColor: "#ead640ff" },
+            ]} 
+            height={360}  
+            title="Max & Min" 
+            displayUnit = {displayUnit}
+          />
+        </Col>
+        <Col span={12} xs={24} sm={24} md={12} style={{ paddingLeft: '6px' }}>
+          <BarBasic 
+            labels={minMaxData?.labels} 
+            datasets={[
+              { label: "Max", data: minMaxData?.maxPacketLoss, backgroundColor: "#ff0000ff" },
+              { label: "Min", data: minMaxData?.minPacketLoss, backgroundColor: "#d6f511ff" },
+            ]} 
+            height={360}  
+            title="Max & Min Ping" 
+            displayUnit = {displayUnit}
+          />
+        </Col>
+      </Row>
     </>
   )
 }
