@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 
-import { BarChartOutlined, DashboardOutlined, HomeOutlined } from '@ant-design/icons'
+import { BarChartOutlined, BlockOutlined, CustomerServiceOutlined, DashboardOutlined, HomeOutlined } from '@ant-design/icons'
 import { Menu, theme } from 'antd'
 import Sider from 'antd/es/layout/Sider'
 
@@ -24,20 +24,30 @@ export default function SideBarContainer({ isCollapsed }: { isCollapsed?: boolea
         defaultSelectedKeys={selectedKeys.length ? selectedKeys : ['home']}
         style={{ height: '100%', borderInlineEnd: 0, paddingTop: 16 }}
         items={[
-          {
-            key: `home`,
-            icon: <HomeOutlined />,
-            label: <Link to={'/'}>Home</Link>,
-          },
+          // {
+          //   key: `dashboard`,
+          //   icon: <HomeOutlined />,
+          //   label: <Link to={'/'}>Dashboard</Link>,
+          // },
           {
             key: `dashboard`,
             icon: <DashboardOutlined />,
-            label: <Link to={'/dashboard'}>Dashboard</Link>,
+            label: <Link to={'/'}>Dashboard</Link>,
           },
           {
-            key: `chart`,
+            key: `ip`,
             icon: <BarChartOutlined />,
-            label: <Link to={'/chart'}>Chart</Link>,
+            label: <Link to={'/ip'}>Ip</Link>,
+          },
+          {
+            key: `service`,
+            icon: <CustomerServiceOutlined />,
+            label: <Link to={'/service'}>Service</Link>,
+          },
+          {
+            key: `site`,
+            icon: <BlockOutlined />,
+            label: <Link to={'/site'}>Site</Link>,
           },
         ]}
       />
