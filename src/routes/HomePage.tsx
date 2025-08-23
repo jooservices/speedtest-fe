@@ -36,7 +36,7 @@ ChartJS.register(
   annotationPlugin
 )
 
-export type unitType = 'bps' | 'Kbps' | 'Mbps' | 'Gbps'
+export type unitType = 'bps' | 'Kbps' | 'Mbps' | 'Gbps' | 'Bps' | 'KBps' | 'MBps' | 'GBps'
 
 export default function HomePage() {
   const [downloadSpeed, setDownloadSpeed] = React.useState<number>(0)
@@ -157,6 +157,10 @@ export default function HomePage() {
             <Select.Option value='Kbps'>Kbps</Select.Option>
             <Select.Option value='Mbps'>Mbps</Select.Option>
             <Select.Option value='Gbps'>Gbps</Select.Option>
+            <Select.Option value='Bps'>Bps</Select.Option>
+            <Select.Option value='KBps'>KBps</Select.Option>
+            <Select.Option value='MBps'>MBps</Select.Option>
+            <Select.Option value='GBps'>GBps</Select.Option>
           </Select>
         </Space>
       </Row>

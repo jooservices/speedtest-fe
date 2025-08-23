@@ -1,18 +1,32 @@
 import { unitType } from "routes/HomePage";
 
-export function formatSpeed(bps: number, includeUnit = true, convertTo: unitType = 'Mbps', isReadable = true): string {
-  let speedInMbps = bps / 125_000;
-  let convertedSpeed: string|number = speedInMbps;
+export function formatSpeed(Bps: number, includeUnit = true, convertTo: unitType = 'Mbps', isReadable = true): string {
+  let convertedSpeed: string|number = Bps;
 
   switch (convertTo) {
-    case 'bps':
-      convertedSpeed = bps
+    case 'bps': // bits per second
+      convertedSpeed = Bps * 8
       break
-    case 'Kbps':
-      convertedSpeed =  speedInMbps * 1_000
+    case 'Kbps': // kilobits per second
+      convertedSpeed = (Bps * 8) / 1_000
       break;
-    case 'Gbps':
-      convertedSpeed = speedInMbps / 1_000
+    case 'Mbps': // megabits per second
+      convertedSpeed = (Bps * 8) / 1_000_000
+      break;
+    case 'Gbps': // gigabits per second
+      convertedSpeed = (Bps * 8) / 1_000_000_000
+      break;
+    case 'Bps': // bytes per second
+      convertedSpeed = Bps
+      break;
+    case 'KBps': // kilobytes per second
+      convertedSpeed = Bps / 1_000
+      break;
+    case 'MBps': // megabytes per second
+      convertedSpeed = Bps / 1_000_000
+      break;
+    case 'GBps': // gigabytes per second
+      convertedSpeed = Bps / 1_000_000_000
       break;
   }
 
