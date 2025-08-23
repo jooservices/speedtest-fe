@@ -207,6 +207,10 @@ export default function Dashboard() {
             <Select.Option value='Kbps'>Kbps</Select.Option>
             <Select.Option value='Mbps'>Mbps</Select.Option>
             <Select.Option value='Gbps'>Gbps</Select.Option>
+            <Select.Option value='Bps'>Bps</Select.Option>
+            <Select.Option value='KBps'>KBps</Select.Option>
+            <Select.Option value='MBps'>MBps</Select.Option>
+            <Select.Option value='GBps'>GBps</Select.Option>
           </Select>
         </Space>
       </Row>
