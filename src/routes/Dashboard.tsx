@@ -4,8 +4,8 @@ import { useQuery } from 'react-query'
 import { get } from 'lodash'
 
 import { unitType } from './HomePage'
-import { ClockCircleOutlined, DownloadOutlined, UploadOutlined } from '@ant-design/icons'
-import { Button, DatePicker, DatePickerProps, Select, Space, Typography } from 'antd'
+import { DownloadOutlined, StockOutlined, UploadOutlined } from '@ant-design/icons'
+import { DatePicker, DatePickerProps, Select, Space, Typography } from 'antd'
 import { Col, Row } from 'antd'
 import {
   CategoryScale,
@@ -20,8 +20,7 @@ import {
 import annotationPlugin from 'chartjs-plugin-annotation'
 import Chart from 'components/Chart'
 import MetricCard from 'components/MetricCard'
-import Tables from 'components/Tables'
-import { getSpeedtest, getSpeedtestByDate } from 'services/metricServices'
+import { getMyIp, getSpeedtest, getSpeedtestByDate } from 'services/metricServices'
 import { formatPing, formatSpeed } from 'utils/helper'
 import BarBasic from 'components/BarBasic'
 import dayjs from 'dayjs'
@@ -40,6 +39,10 @@ ChartJS.register(
   annotationPlugin
 )
 
+const today = new Date()
+const tomorrow = new Date()
+tomorrow.setDate(today.getDate() + 1)
+
 export default function Dashboard() {
   const [downloadSpeed, setDownloadSpeed] = React.useState<number>(0)
   const [uploadSpeed, setUploadSpeed] = React.useState<number>(0)
@@ -49,8 +52,8 @@ export default function Dashboard() {
   const [displayUnit, setDisplayUnit] = React.useState<unitType>('Mbps')
   const [chartFilters, setChartFilters] = React.useState({
     orderDir: 'asc',
-    from: new Date().toISOString().slice(0, 10),
-    to: new Date().toISOString().slice(0, 10),
+    from: today.toISOString().slice(0, 10),
+    to: tomorrow.toISOString().slice(0, 10),
   })
 
   const { data: latestData, refetch: refetchLastestData } = useQuery(
@@ -162,6 +165,16 @@ export default function Dashboard() {
     }
   )
 
+  const { data: myIp } = useQuery('getMyIp', getMyIp, {
+    select({ data }) {
+      if (data) {
+        return data.ip
+      }
+
+      return null
+    },
+  })
+
   useEffect(() => {
     if (latestData) {
       const downloadSpeed = get(latestData, 'download_speed', 0)
@@ -183,17 +196,19 @@ export default function Dashboard() {
 
   return (
     <>
-      <Row style={{ marginLeft: '8px' }}>
+      <Row style={{ marginLeft: '8px', justifyContent: 'space-between' }}>
         <Space direction='vertical'>
           <AntTitle style={{ margin: 0 }}>Dashboard</AntTitle>
           <Text type='secondary'>Next speed test at: 27 Nov 2022, 22:06</Text>
         </Space>
+
+          <Text type='secondary'>Your IP: { myIp }</Text>
       </Row>
 
       <Row style={{ marginLeft: '8px', marginTop: '8px', justifyContent: 'space-between' }}>
         <Space direction='vertical'>
           <RangePicker 
-            defaultValue={[dayjs(), dayjs()]}
+            defaultValue={[dayjs(), dayjs().add(1, 'day')]}
             onChange={onChange} 
           />
         </Space>
@@ -219,24 +234,24 @@ export default function Dashboard() {
         <Col span={8} xs={24} sm={12} md={8}>
           <MetricCard
             downloadSpeed={downloadSpeed}
-            title='Latest download'
-            icon={<DownloadOutlined />}
+            title='Download'
+            icon={<DownloadOutlined className='fs-24' style={{ color: 'blue' }} />}
             formatFunction={speed => formatSpeed(speed, true, displayUnit)}
           />
         </Col>
         <Col span={8} xs={24} sm={12} md={8}>
           <MetricCard
             downloadSpeed={uploadSpeed}
-            title='Latest upload'
-            icon={<UploadOutlined />}
+            title='Upload'
+            icon={<UploadOutlined className='fs-24' style={{ color: 'green' }} />}
             formatFunction={speed => formatSpeed(speed, true, displayUnit)}
           />
         </Col>
         <Col span={8} xs={24} sm={12} md={8}>
           <MetricCard
             downloadSpeed={ping}
-            title='Latest ping'
-            icon={<ClockCircleOutlined />}
+            title='Ping'
+            icon={<StockOutlined className='fs-24'  style={{ color: 'red' }} />}
             formatFunction={speed => formatPing(speed, true)}
           />
         </Col>
