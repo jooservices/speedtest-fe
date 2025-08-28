@@ -1,4 +1,4 @@
-import { Card, Typography } from 'antd'
+import { Card, Space, Typography } from 'antd'
 
 const { Text } = Typography
 
@@ -12,15 +12,24 @@ export default function MetricCard(props: {
 
   return (
     <Card className='metric-card'>
-      <span style={{ display: 'flex', alignItems: 'center' }}>
-        {icon}
+      <span style={{ display: 'flex', justifyContent: 'space-between' }}>
+        <h2 className='my-0'>{title}</h2>
 
-        <Text type='secondary' style={{ marginLeft: 8 }} strong>
-          {title}
-        </Text>
+        {icon}
       </span>
 
-      <h1>{formatFunction(downloadSpeed)}</h1>
+      <Space size={2} direction='vertical'>
+        <h2 className='my-0'>{formatFunction(downloadSpeed)} (latest)</h2>
+        <Text className='fs-16' type='secondary'>
+          {formatFunction(downloadSpeed)} (avg)
+        </Text>
+        <Text className='fs-16' type='secondary'>
+          {formatFunction(downloadSpeed)} (max)
+        </Text>
+        <Text className='fs-16' type='secondary'>
+          {formatFunction(downloadSpeed)} (min)
+        </Text>
+      </Space>
     </Card>
   )
 }

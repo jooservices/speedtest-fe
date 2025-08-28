@@ -21,7 +21,7 @@ export default function SideBarContainer({ isCollapsed }: { isCollapsed?: boolea
       collapsed={isCollapsed}>
       <Menu
         mode='inline'
-        defaultSelectedKeys={selectedKeys.length ? selectedKeys : ['home']}
+        defaultSelectedKeys={selectedKeys.length ? selectedKeys : ['dashboard']}
         style={{ height: '100%', borderInlineEnd: 0, paddingTop: 16 }}
         items={[
           // {
